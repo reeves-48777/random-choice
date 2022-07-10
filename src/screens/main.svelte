@@ -3,8 +3,7 @@
 	import Card from '../components/card.svelte';
 	import * as Picker from '../utils/picker.js';
 
-	const typesPicker = ["CLASSIC", "LAST", "AVERAGE", "STONKS"];
-	let type = typesPicker[0];
+	let type = Picker.Types.CLASSIC;
 	let typeindex = 0;
 
 	let firstTime = true;
@@ -14,7 +13,7 @@
 	let choices = [];
 	let currentText = "";
 
-	let nPicks = "";
+	let nPicks = 1;
 
 	function addChoice(text) {
 		if (text !== "" && text !== undefined) {
@@ -43,7 +42,17 @@
 
 
 	function choose() {
-		out = new Picker.Classic().pick(choices, removeItem);
+		const picker = Picker.build(type, nPicks);
+		if (type === Picker.Types.CLASSIC) {
+			out = picker.pick(choices, removeItem)
+		}
+		else {
+			out = picker.pick(choices, () => {
+				choices = [];
+				currentText = "";
+				nPicks = 1;
+			});
+		}
 		firstTime = false;
 	}
 
@@ -76,20 +85,20 @@
 					<select class="select select-md text-lg rounded-t-lg rounded-b" bind:value={type} on:mousewheel={ e => { 
 						if (e.deltaY < 0) {
 							typeindex = typeindex-1;
-							type = typesPicker[Math.abs(typeindex) % (typesPicker.length)];
+							type = Picker.TypesArray[Math.abs(typeindex) % (Picker.TypesArray.length)];
 
 							
 						} 
 						else if (e.deltaY > 0) {
 							typeindex = typeindex+1;
-							type = typesPicker[Math.abs(typeindex) % (typesPicker.length)];
+							type = Picker.TypesArray[Math.abs(typeindex) % (Picker.TypesArray.length)];
 
 						}
 					}}>
-						<option value={typesPicker[0]} selected>Classic</option>
-						<option value={typesPicker[1]}>Last pick</option>
-						<option value={typesPicker[2]}>Average pick</option>
-						<option value={typesPicker[3]}>Stonks pick</option>
+						<option value={Picker.TypesArray[0]} selected>Classic</option>
+						<option value={Picker.TypesArray[1]}>Last pick</option>
+						<option value={Picker.TypesArray[2]}>Average pick</option>
+						<option value={Picker.TypesArray[3]}>Stonks pick</option>
 					</select>
 				</div>
 				<!-- {#if type !== "CLASSIC"} -->
